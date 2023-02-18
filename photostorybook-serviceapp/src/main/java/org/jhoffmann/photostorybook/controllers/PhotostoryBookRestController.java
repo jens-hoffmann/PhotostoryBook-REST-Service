@@ -7,6 +7,7 @@ import org.jhoffmann.photostorybook.api.v1.model.AddPhotostoryRequest;
 import org.jhoffmann.photostorybook.api.v1.model.PhotostoryListResponse;
 import org.jhoffmann.photostorybook.api.v1.model.PhotostoryResponse;
 import org.jhoffmann.photostorybook.domain.PhotostoryEntity;
+import org.jhoffmann.photostorybook.exceptions.ApiRequestException;
 import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.jhoffmann.photostorybook.services.PhotostoryService;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,11 @@ public class PhotostoryBookRestController implements PhotostoriesApi {
 
     @Override
     public ResponseEntity<PhotostoryResponse> addPhotostory(AddPhotostoryRequest addPhotostoryRequest) {
+        if (addPhotostoryRequest.getStoryTitle().isEmpty())
+            throw new ApiRequestException("PhotostoryBookRestController: story title of photostory is empty !");
         log.debug("Received POST Photostories with title " + addPhotostoryRequest.getStoryTitle());
         PhotostoryResponse photostoryResponse = photostoryService.addPhotostory(addPhotostoryRequest);
+
         return new ResponseEntity<>(photostoryResponse, HttpStatus.CREATED);
     }
 

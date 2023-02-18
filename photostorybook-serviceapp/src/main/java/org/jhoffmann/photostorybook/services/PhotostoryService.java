@@ -6,6 +6,7 @@ import org.jhoffmann.photostorybook.api.v1.model.PhotostoryListResponse;
 import org.jhoffmann.photostorybook.api.v1.model.PhotostoryResponse;
 import org.jhoffmann.photostorybook.domain.PSImageEntity;
 import org.jhoffmann.photostorybook.domain.PhotostoryEntity;
+import org.jhoffmann.photostorybook.exceptions.ApiRequestException;
 import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,11 @@ public class PhotostoryService {
 
     private PhotostoryResponse entityToResponse(PhotostoryEntity entity) {
         PhotostoryResponse response = new PhotostoryResponse();
+        if (entity.getBusinesskey().isEmpty())
+            throw new ApiRequestException("PhotostoryService: PhotostoryEntity has empty businesskey !");
         response.setUuid(entity.getBusinesskey());
+        if (entity.getStoryTitle().isEmpty())
+            throw new ApiRequestException("PhotostoryService: PhotostoryEntity has empty story title !");
         response.setStoryTitle(entity.getStoryTitle());
         PSImageEntity titleImage = entity.getTitleImage();
         if (titleImage != null)

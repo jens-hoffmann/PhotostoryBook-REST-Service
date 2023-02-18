@@ -1,0 +1,79 @@
+openapi: 3.0.3
+info:
+  title: PhotostoryBook service API.
+  description: REST API for PhotostoryBook App
+  version: 0.0.1-SNAPSHOT
+servers:
+  - url: https://127.0.0.1:8080/
+  - url: http://127.0.0.1:8080/
+tags:
+  - name: photostories
+    description: This section contains photostory endpoints
+  - name: user
+    description: This section contains user endpoints
+
+paths:
+  /photostories:
+    get:
+      operationId: getPhotostories
+      tags:
+        - photostories
+      summary: Returns a list of all photostories
+
+      description: |
+        Returns a list of all photostories of the current authorized user.
+      responses:
+        200:
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotostoryListResponse'
+    post:
+      operationId: addPhotostory
+      tags:
+        - photostories
+      summary: Creates a new photostory
+      description: |
+        Creates a new photostory for the current authorized user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                storyTitle:
+                  type: string
+                  example: An awesome title for a new photostory.
+      responses:
+        201:
+          description: Successfully created a new photostory.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotostoryResponse'
+components:
+  schemas:
+    PhotostoryResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          pattern: '^[0-9a-fA-F\-]{36}$'
+        storyTitle:
+          type: string
+        titlePhotoURI:
+          type: string
+      required:
+        - uuid
+        - storyTitle
+    PhotostoryListResponse:
+      type: object
+      properties:
+        photostories:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhotostoryResponse'
+
+
+

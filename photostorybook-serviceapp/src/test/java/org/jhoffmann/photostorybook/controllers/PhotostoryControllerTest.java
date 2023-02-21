@@ -3,9 +3,12 @@ package org.jhoffmann.photostorybook.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jhoffmann.photostorybook.api.v1.model.AddPhotostoryRequest;
+import org.jhoffmann.photostorybook.api.v1.model.PhotostoryListResponse;
 import org.jhoffmann.photostorybook.api.v1.model.PhotostoryResponse;
+import org.jhoffmann.photostorybook.domain.PhotostoryEntity;
 import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.jhoffmann.photostorybook.services.PhotostoryService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.BDDMockito.given;
@@ -73,13 +77,25 @@ public class PhotostoryControllerTest {
 
     @Test
     void getPhotostories_nonemptyResponse() throws Exception{
+        PhotostoryResponse response = new PhotostoryResponse();
+        response.setStoryTitle("my test title");
+        response.setUuid(UUID.randomUUID().toString());
+        response.setTitlePhotoURI("my title image URL");
+
+        PhotostoryListResponse photostoryListResponse = new PhotostoryListResponse();
+        photostoryListResponse.setPhotostories(List.of(response));
+
+        given(photostoryService.getPhotostories()).willReturn(photostoryListResponse);
+
         mockMvc.perform(
                         get(PHOTOSTORIES_ENDPOINT))
                 .andDo(print())
-                .andExpect( status().isOk() );
-                // TODO Check response body
+                .andExpect( status().isOk() )
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("photostories").isArray())
+                .andExpect(jsonPath("photostories[0].storyTitle").value("my test title"))
+                .andExpect(jsonPath("photostories[0].titlePhotoURI").value("my title image URL"));
 
     }
-
 
 }

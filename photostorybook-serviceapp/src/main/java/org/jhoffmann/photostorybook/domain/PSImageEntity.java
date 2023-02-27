@@ -19,25 +19,25 @@ public class PSImageEntity {
     @GeneratedValue( strategy = GenerationType.AUTO )
     private Long id;
 
-    @NotNull
-    private String businesskey;
-
-    @NotNull
     private String title;
 
     @NotNull
-    private String imageUrl;
+    private String imageUUID;
 
     @ManyToOne
     @JoinColumn( name = "photos")
     private PhotostoryEntity photostory;
 
     private PSImageEntity() {
+
     }
 
-    public PSImageEntity(String title, String imageUrl) {
-        this.businesskey = UUID.randomUUID().toString();
+    public PSImageEntity(String imageUUID) {
+        this.imageUUID = imageUUID;
+    }
+
+    public PSImageEntity(String title, String imageUUID) {
         this.title = title;
-        this.imageUrl = imageUrl;
+        this.imageUUID = imageUUID;
     }
 }

@@ -56,7 +56,7 @@ public class PhotostoryControllerTest {
         request.setStoryTitle("my test title");
         PhotostoryResponse response = new PhotostoryResponse();
         response.setStoryTitle("my test title");
-        response.setUuid(UUID.randomUUID().toString());
+        response.setUuid(UUID.randomUUID());
         response.setTitlePhotoURI("my title image URL");
         given(photostoryService.addPhotostory(request)).willReturn(
                 response);
@@ -79,7 +79,7 @@ public class PhotostoryControllerTest {
     void getPhotostories_nonemptyResponse() throws Exception{
         PhotostoryResponse response = new PhotostoryResponse();
         response.setStoryTitle("my test title");
-        response.setUuid(UUID.randomUUID().toString());
+        response.setUuid(UUID.randomUUID());
         response.setTitlePhotoURI("my title image URL");
 
         PhotostoryListResponse photostoryListResponse = new PhotostoryListResponse();

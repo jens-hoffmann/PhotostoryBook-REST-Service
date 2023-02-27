@@ -9,6 +9,8 @@ servers:
 tags:
   - name: photostories
     description: This section contains photostory endpoints
+  - name: photos
+    description: This section contains endpoints related to photo
   - name: user
     description: This section contains user endpoints
 
@@ -52,6 +54,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PhotostoryResponse'
+
+  /photostories/{storyId}/photos:
+    post:
+      tags:
+        - photos
+      summary: Add a new photo to photostory identified by storyId
+      operationId: uploadPhoto
+      parameters:
+        - in: path
+          name: storyId
+          description: photostory id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        description: Photo image file in PNG format
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        201:
+          description: Successfully upload a photo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoIdResponse'
+
 components:
   schemas:
     PhotostoryResponse:
@@ -59,9 +98,12 @@ components:
       properties:
         uuid:
           type: string
+          format: uuid
           pattern: '^[0-9a-fA-F\-]{36}$'
+          example: "123e4567-e89b-12d3-a456-426614174000"
         storyTitle:
           type: string
+          example: An awesome title for a new photostory.
         titlePhotoURI:
           type: string
       required:
@@ -74,6 +116,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PhotostoryResponse'
-
+    PhotoIdResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          pattern: '^[0-9a-fA-F\-]{36}$'
+      required:
+        - uuid
 
 

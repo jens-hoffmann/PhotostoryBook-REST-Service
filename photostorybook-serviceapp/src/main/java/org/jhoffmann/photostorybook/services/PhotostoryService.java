@@ -11,6 +11,7 @@ import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -26,13 +27,13 @@ public class PhotostoryService {
         PhotostoryResponse response = new PhotostoryResponse();
         if (entity.getBusinesskey().isEmpty())
             throw new ApiRequestException("PhotostoryService: PhotostoryEntity has empty businesskey !");
-        response.setUuid(entity.getBusinesskey());
+        response.setUuid(UUID.fromString(entity.getBusinesskey()));
         if (entity.getStoryTitle().isEmpty())
             throw new ApiRequestException("PhotostoryService: PhotostoryEntity has empty story title !");
         response.setStoryTitle(entity.getStoryTitle());
         PSImageEntity titleImage = entity.getTitleImage();
         if (titleImage != null)
-            response.setTitlePhotoURI(titleImage.getImageUrl().toString());
+            response.setTitlePhotoURI(titleImage.getImageUUID().toString());
         return response;
     }
 

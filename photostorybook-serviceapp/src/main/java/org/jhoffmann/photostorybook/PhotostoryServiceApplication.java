@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.util.List;
+import java.util.UUID;
 
 @SpringBootApplication
 public class PhotostoryServiceApplication {
@@ -23,8 +24,8 @@ public class PhotostoryServiceApplication {
 			@Override
 			public void run(String... args) throws Exception {
 				List<PSImageEntity> photoList = List.of(
-						new PSImageEntity("image1", "imageUrl1"),
-						new PSImageEntity("image2", "imageUrl2"));
+						new PSImageEntity("image1", UUID.randomUUID().toString()),
+						new PSImageEntity("image2", UUID.randomUUID().toString()));
 
 				PhotostoryEntity photostory = new PhotostoryEntity("my first photostory");
 				photostory.setPhotos(photoList);

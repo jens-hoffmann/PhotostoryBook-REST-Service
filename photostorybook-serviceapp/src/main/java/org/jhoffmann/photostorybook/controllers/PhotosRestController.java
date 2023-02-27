@@ -6,7 +6,10 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.extern.slf4j.Slf4j;
 import org.jhoffmann.photostorybook.api.v1.PhotosApi;
 import org.jhoffmann.photostorybook.api.v1.model.PhotoIdResponse;
+import org.jhoffmann.photostorybook.api.v1.model.PhotostoryResponse;
+import org.jhoffmann.photostorybook.exceptions.ApiRequestException;
 import org.jhoffmann.photostorybook.services.PhotoService;
+import org.jhoffmann.photostorybook.services.PhotostoryService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +36,7 @@ public class PhotosRestController implements PhotosApi {
 
     public PhotosRestController(PhotoService photoService) {
         this.photoService = photoService;
+
     }
 
     public ResponseEntity<PhotoIdResponse> uploadPhoto(
@@ -48,15 +52,14 @@ public class PhotosRestController implements PhotosApi {
 
             inputStream.reset();
 
-            String uuidFilename = photoService.upload(inputStream.readAllBytes(), "png");
+            String uuidFilename = photoService.upload(inputStream.readAllBytes(), "png", storyId);
             PhotoIdResponse photoIdResponse = new PhotoIdResponse();
             log.info("POST uploadPhoto with UUID " + uuidFilename);
             photoIdResponse.setUuid(UUID.fromString(uuidFilename));
             return new ResponseEntity<>(photoIdResponse, HttpStatus.CREATED);
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
-
+            throw new ApiRequestException("Failed to upload image: " + e.getMessage());
         }
 
     }

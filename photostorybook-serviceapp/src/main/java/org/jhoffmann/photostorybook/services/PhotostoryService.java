@@ -11,6 +11,7 @@ import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -33,7 +34,7 @@ public class PhotostoryService {
         response.setStoryTitle(entity.getStoryTitle());
         PSImageEntity titleImage = entity.getTitleImage();
         if (titleImage != null)
-            response.setTitlePhotoURI(titleImage.getImageUUID().toString());
+            response.setTitlePhotoURI(titleImage.getImageUrl().toString());
         return response;
     }
 
@@ -53,6 +54,14 @@ public class PhotostoryService {
         log.debug("PhotostoryService: addPhotostory " + entity.getStoryTitle() );
         PhotostoryEntity savedEntity = photostoryRepository.save(entity);
         return entityToResponse(savedEntity);
+    }
+
+    public PhotostoryResponse findPhotostoryByBusinesskey(String businesskey) {
+        Optional<PhotostoryEntity> first = photostoryRepository.findByBusinesskey(businesskey).stream().findFirst();
+        if (first.isEmpty()) {
+            throw new ApiRequestException("PhotostoryService: no PhotostoryEntity with businesskey "+ businesskey + "!");
+        }
+        return entityToResponse(first.get());
     }
 
 }

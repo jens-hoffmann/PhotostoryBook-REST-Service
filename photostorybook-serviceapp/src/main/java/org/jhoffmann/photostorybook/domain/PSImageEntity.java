@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -22,7 +21,9 @@ public class PSImageEntity {
     private String title;
 
     @NotNull
-    private String imageUUID;
+    private String businessKey;
+    @NotNull
+    private String imageUrl;
 
     @ManyToOne
     @JoinColumn( name = "photos")
@@ -32,12 +33,12 @@ public class PSImageEntity {
 
     }
 
-    public PSImageEntity(String imageUUID) {
-        this.imageUUID = imageUUID;
+    public PSImageEntity(String imageUrl, String businessKey) {
+        this.imageUrl = imageUrl;
     }
 
-    public PSImageEntity(String title, String imageUUID) {
+    public PSImageEntity(String title, String imageUrl, String businessKey) {
         this.title = title;
-        this.imageUUID = imageUUID;
+        this.imageUrl = imageUrl;
     }
 }

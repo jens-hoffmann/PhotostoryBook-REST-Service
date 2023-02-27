@@ -24,8 +24,8 @@ public class PhotostoryServiceApplication {
 			@Override
 			public void run(String... args) throws Exception {
 				List<PSImageEntity> photoList = List.of(
-						new PSImageEntity("image1", UUID.randomUUID().toString()),
-						new PSImageEntity("image2", UUID.randomUUID().toString()));
+						new PSImageEntity("image1",  "image1.png", UUID.randomUUID().toString()),
+						new PSImageEntity("image2","image1.png", UUID.randomUUID().toString()));
 
 				PhotostoryEntity photostory = new PhotostoryEntity("my first photostory");
 				photostory.setPhotos(photoList);

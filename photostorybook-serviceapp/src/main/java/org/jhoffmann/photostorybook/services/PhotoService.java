@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @Slf4j
 @Service
@@ -30,7 +28,6 @@ public class PhotoService {
     }
 
     public String upload(byte[] imageBytes , String imageFormat, UUID photostoryUUID) {
-        //Future<byte[]> thumbnailBytes = thumbnail.thumbnail( imageBytes );
         String imageName = UUID.randomUUID().toString();
         PSImageEntity psImageEntity = new PSImageEntity(imageName +".png", imageName);
         Optional<PhotostoryEntity> photostory = photostoryRepository.findByBusinesskey(photostoryUUID.toString()).stream().findFirst();
@@ -38,17 +35,8 @@ public class PhotoService {
             throw new ApiRequestException("PhotoService: upload: No photostory with id "+ photostoryUUID.toString());
         psImageEntity.setPhotostory(photostory.get());
         PSImageEntity savedEntity = imageRepository.save(psImageEntity);
-        // store full image
-        fs.store( imageName + ".png", imageBytes );
 
-      /*  // store thumbnail
-        try {
-            log.info( "upload" );
-            fs.store( imageName + "-thumb.png", thumbnailBytes.get() );
-        }
-        catch (InterruptedException | ExecutionException e ) {
-            throw new IllegalStateException( e );
-        }*/
+        fs.store( imageName + ".png", imageBytes );
 
         return imageName;
     }

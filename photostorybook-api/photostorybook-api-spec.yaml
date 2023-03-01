@@ -31,6 +31,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PhotostoryListResponse'
+        204:
+          description: No photostory found.
     post:
       operationId: addPhotostory
       tags:
@@ -56,6 +58,32 @@ paths:
                 $ref: '#/components/schemas/PhotostoryResponse'
 
   /photostories/{storyId}/photos:
+    get:
+      tags:
+        - photos
+      summary: Get all photo details of photostory identified by storyId
+      operationId: downloadPhotoDetailsList
+      parameters:
+        - in: path
+          name: storyId
+          description: photostory id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        200:
+          description: Successfully retrieved photos of photostory
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoDetailsListResponse'
+
+        204:
+          description: Photostory contains no photos.
+
     post:
       tags:
         - photos
@@ -75,10 +103,6 @@ paths:
         description: Photo image file in PNG format
         required: true
         content:
-          image/png:
-            schema:
-              type: string
-              format: binary
           image/jpeg:
             schema:
               type: string
@@ -89,7 +113,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PhotoIdResponse'
+                $ref: '#/components/schemas/PhotoDetailsResponse'
+
+  /photostories/{storyId}/photos/{photoId}:
+    get:
+      tags:
+        - photos
+      summary: Get selected photos with photoId of photostory identified by storyId
+      operationId: downloadPhoto
+      parameters:
+        - in: path
+          name: storyId
+          description: photostory id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+        - in: path
+          name: photoId
+          description: photo id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        200:
+          description: Successfully retrieved photos of photostory
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
 
 components:
   schemas:
@@ -116,14 +174,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PhotostoryResponse'
-    PhotoIdResponse:
+    PhotoDetailsResponse:
       type: object
       properties:
         uuid:
           type: string
           format: uuid
           pattern: '^[0-9a-fA-F\-]{36}$'
+        photoTitle:
+          type: string
+          example: An awesome title for a photo.
       required:
         - uuid
+    PhotoDetailsListResponse:
+      type: object
+      properties:
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhotoDetailsResponse'
+
 
 

@@ -18,6 +18,8 @@ paths:
   /photostories:
     get:
       operationId: getPhotostories
+      security:
+        - bearerAuth: []
       tags:
         - photostories
       summary: Returns a list of all photostories
@@ -33,10 +35,14 @@ paths:
                 $ref: '#/components/schemas/PhotostoryListResponse'
         204:
           description: No photostory found.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
     post:
       operationId: addPhotostory
       tags:
         - photostories
+      security:
+        - bearerAuth: []
       summary: Creates a new photostory
       description: |
         Creates a new photostory for the current authorized user.
@@ -56,11 +62,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PhotostoryResponse'
-
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
   /photostories/{storyId}/photos:
     get:
       tags:
         - photos
+      security:
+        - bearerAuth: []
       summary: Get all photo details of photostory identified by storyId
       operationId: downloadPhotoDetailsList
       parameters:
@@ -83,10 +92,13 @@ paths:
 
         204:
           description: Photostory contains no photos.
-
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
     post:
       tags:
         - photos
+      security:
+        - bearerAuth: []
       summary: Add a new photo to photostory identified by storyId
       operationId: uploadPhoto
       parameters:
@@ -114,11 +126,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PhotoDetailsResponse'
-
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
   /photostories/{storyId}/photos/{photoId}:
     get:
       tags:
         - photos
+      security:
+        - bearerAuth: []
       summary: Get selected photos with photoId of photostory identified by storyId
       operationId: downloadPhoto
       parameters:
@@ -148,6 +163,65 @@ paths:
               schema:
                 type: string
                 format: binary
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /users:
+    post:
+      tags:
+        - user
+      operationId: createUser
+      summary: Create a new user
+      description: Create a new user
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: alice
+                password:
+                  type: string
+                  format: password
+                fullName:
+                  type: string
+                  example: Alice Cooper
+      responses:
+        '201':
+          description: Successfully created a new user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+  /tokens:
+    post:
+      tags:
+        - user
+      operationId: createToken
+      summary: Create a new token
+      description: Create a new token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: alice
+                password:
+                  type: string
+                  format: password
+
+      responses:
+        '201':
+          description: Create a new token for gaining authenticated access to resources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTokenResponse'
 
 components:
   schemas:
@@ -193,6 +267,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PhotoDetailsResponse'
+    CreateUserResponse:
+      type: object
+      properties:
+        username:
+          type: string
+          example: alice
+        uuid:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      required:
+        - uuid
+        - username
+    CreateTokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
 
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
 
-
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

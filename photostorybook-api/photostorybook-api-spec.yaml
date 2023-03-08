@@ -225,6 +225,14 @@ paths:
 
 components:
   schemas:
+    ApiError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
     PhotostoryResponse:
       type: object
       properties:

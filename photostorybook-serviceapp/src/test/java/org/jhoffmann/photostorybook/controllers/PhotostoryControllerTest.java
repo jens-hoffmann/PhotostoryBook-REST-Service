@@ -3,10 +3,14 @@ package org.jhoffmann.photostorybook.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jhoffmann.photostorybook.api.v1.model.AddPhotostoryRequest;
+import org.jhoffmann.photostorybook.api.v1.model.CreateUserRequest;
 import org.jhoffmann.photostorybook.api.v1.model.PhotostoryListResponse;
 import org.jhoffmann.photostorybook.api.v1.model.PhotostoryResponse;
+import org.jhoffmann.photostorybook.domain.PSUser;
 import org.jhoffmann.photostorybook.domain.PhotostoryEntity;
+import org.jhoffmann.photostorybook.repositories.PSUserRepository;
 import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
+import org.jhoffmann.photostorybook.security.SecurityConfiguration;
 import org.jhoffmann.photostorybook.services.PhotostoryService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,22 +19,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import javax.annotation.PostConstruct;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+@Import({SecurityConfiguration.class})
+//@ContextConfiguration(classes = SecurityConfiguration.class)
+@WebAppConfiguration
 @WebMvcTest(controllers = PhotostoryBookRestController.class)
 public class PhotostoryControllerTest {
 
@@ -38,6 +62,8 @@ public class PhotostoryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext context;
 
     @MockBean
     private PhotostoryService photostoryService;
@@ -46,11 +72,32 @@ public class PhotostoryControllerTest {
     private PhotostoryRepository photostoryRepository;
 
 
+    @Autowired
+    private JwtEncoder jwtEncoder;
+
+    private String webtoken;
+
     private String toJson(Object obj) throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(obj);
     }
 
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+        Instant now = Instant.now();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuedAt(now)
+                .expiresAt(now.plus( 10, ChronoUnit.MINUTES ))
+                .subject( "testuser" )
+                .build();
+        webtoken = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
     @Test
+    @WithMockUser(roles="USER")
     void createPhotostory_successfulPost() throws Exception{
         AddPhotostoryRequest request = new AddPhotostoryRequest();
         request.setStoryTitle("my test title");
@@ -64,6 +111,7 @@ public class PhotostoryControllerTest {
         mockMvc.perform(
                         post(PHOTOSTORIES_ENDPOINT)
                                 .accept(MediaType.APPLICATION_JSON)
+                                .header(HttpHeaders.AUTHORIZATION, webtoken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(toJson(request)))
                 .andDo(print())
@@ -76,6 +124,7 @@ public class PhotostoryControllerTest {
     }
 
     @Test
+    @WithMockUser(roles="USER")
     void getPhotostories_nonemptyResponse() throws Exception{
         PhotostoryResponse response = new PhotostoryResponse();
         response.setStoryTitle("my test title");
@@ -88,7 +137,8 @@ public class PhotostoryControllerTest {
         given(photostoryService.getPhotostories()).willReturn(photostoryListResponse);
 
         mockMvc.perform(
-                        get(PHOTOSTORIES_ENDPOINT))
+                        get(PHOTOSTORIES_ENDPOINT)
+                                .header(HttpHeaders.AUTHORIZATION, webtoken))
                 .andDo(print())
                 .andExpect( status().isOk() )
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

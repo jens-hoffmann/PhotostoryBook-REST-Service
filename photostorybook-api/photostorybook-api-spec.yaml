@@ -19,7 +19,8 @@ paths:
     get:
       operationId: getPhotostories
       security:
-        - bearerAuth: []
+        - oauth2photostorybook:
+            - readPhotostory
       tags:
         - photostories
       summary: Returns a list of all photostories
@@ -42,7 +43,8 @@ paths:
       tags:
         - photostories
       security:
-        - bearerAuth: []
+        - oauth2photostorybook:
+            - writePhotostory
       summary: Creates a new photostory
       description: |
         Creates a new photostory for the current authorized user.
@@ -69,7 +71,8 @@ paths:
       tags:
         - photos
       security:
-        - bearerAuth: []
+        - oauth2photostorybook:
+            - readPhotostory
       summary: Get all photo details of photostory identified by storyId
       operationId: downloadPhotoDetailsList
       parameters:
@@ -98,7 +101,8 @@ paths:
       tags:
         - photos
       security:
-        - bearerAuth: []
+        - oauth2photostorybook:
+            - writePhotostory
       summary: Add a new photo to photostory identified by storyId
       operationId: uploadPhoto
       parameters:
@@ -133,7 +137,8 @@ paths:
       tags:
         - photos
       security:
-        - bearerAuth: []
+        - oauth2photostorybook:
+            - readPhotostory
       summary: Get selected photos with photoId of photostory identified by storyId
       operationId: downloadPhoto
       parameters:
@@ -195,33 +200,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateUserResponse'
-  /tokens:
-    post:
-      tags:
-        - user
-      operationId: createToken
-      summary: Create a new token
-      description: Create a new token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: alice
-                password:
-                  type: string
-                  format: password
 
-      responses:
-        '201':
-          description: Create a new token for gaining authenticated access to resources
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateTokenResponse'
 
 components:
   schemas:
@@ -287,20 +266,19 @@ components:
       required:
         - uuid
         - username
-    CreateTokenResponse:
-      type: object
-      properties:
-        token:
-          type: string
-      required:
-        - token
 
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
 
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    oauth2photostorybook:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth/authorize
+          tokenUrl: /oauth/token
+          scopes:
+            writePhotostory: create and update photostories
+            readPhotostory: read photostories
+            deletePhotostory: delete photostories

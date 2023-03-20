@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Pizza Service Checkout</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet"
+          href="webjars/bootstrap/5.2.3/dist/css/bootstrap.css"/>
+</head>
+
+<body>
+<div th:replace="fragments/header :: header(module='staff')">...</div>
+<div class="container">
+    <main>
+        <div class="py-5 text-center">
+            <h1>Login for staff members</h1>
+            <p class="lead">Log in to manage orders and menu card</p>
+        </div>
+        <div class="row g-5">
+            <div th:if="${error}">
+                Unable to login. Check your username and password.
+            </div>
+
+            <p>New here? Click
+                <a th:href="@{/register}">here</a> to register.</p>
+
+            <!-- tag::thAction[] -->
+            <form class="needs-validation" method="POST" th:action="@{/login}" id="loginForm">
+
+<!--                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>-->
+                <label for="username" class="form-label">Username: </label>
+                <input type="text" class="form-control" name="username" id="username" /><br/>
+
+                <label for="password" class="form-label">Password: </label>
+                <input type="password" class="form-control" name="password" id="password" /><br/>
+
+                <input class="btn btn-primary btn-lg" type="submit" value="Login"/>
+            </form>
+        </div>
+    </main>
+</div>
+</body>
+</html>

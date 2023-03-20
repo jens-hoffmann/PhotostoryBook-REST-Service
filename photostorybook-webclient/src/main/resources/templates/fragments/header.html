@@ -1,0 +1,32 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Pizza service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet"
+          href="webjars/bootstrap/5.2.3/dist/css/bootstrap.css"/>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" th:fragment="header(module)">
+
+    <a class="navbar-brand" th:href="@{/}" href="#">Pizza Service</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a th:href="@{/}" href="#" class="nav-link"
+                                    th:classappend="${module == 'home' ? 'active' : ''}">Home</a></li>
+            <li class="nav-item"><a th:href="@{/staff}" href="#" class="nav-link"
+                                    th:classappend="${module == 'staff' ? 'active' : ''}">Staff</a></li>
+
+
+        </ul>
+
+    </div>
+</nav>
+
+</body>
+</html>

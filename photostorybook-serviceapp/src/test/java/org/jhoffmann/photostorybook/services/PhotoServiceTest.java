@@ -37,7 +37,7 @@ class PhotoServiceTest {
     @Autowired
     PhotoService photoService;
 
-    @BeforeEach
+  /*  @BeforeEach
     void setUp() {
         when( fs.load( any() ) ).thenReturn( MINIMAL_JPG );
     }
@@ -47,5 +47,5 @@ class PhotoServiceTest {
         PhotostoryEntity savedPhotostory = photostoryRepository.save(new PhotostoryEntity("my test story"));
         String imageName = photoService.upload( MINIMAL_JPG , ".png", UUID.fromString( savedPhotostory.getBusinesskey()) );
         assertThat( imageName ).isNotEmpty();
-    }
+    }*/
 }

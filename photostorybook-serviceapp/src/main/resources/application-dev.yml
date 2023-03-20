@@ -1,0 +1,29 @@
+
+spring:
+  sql:
+    init.platform: h2
+    init.mode: embedded
+  h2:
+    console.enabled: true
+  jpa:
+    defer-datasource-initialization: true
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate.ddl-auto: create-drop
+    properties.hibernate.format_sql: true
+    properties.hibernate.highlight_sql: true
+
+  datasource:
+    url: jdbc:h2:mem:photostorybookdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
+# Database Logging
+logging:
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE

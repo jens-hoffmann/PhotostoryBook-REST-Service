@@ -1,18 +1,19 @@
-package org.jhoffmann.photostorybook.services;
+package org.jhoffmann.photostorybookauthorizationserver.services;
 
-import org.jhoffmann.photostorybook.domain.PSUser;
-import org.jhoffmann.photostorybook.repositories.PSUserRepository;
+
+import org.jhoffmann.photostorybookauthorizationserver.users.PSUser;
+import org.jhoffmann.photostorybookauthorizationserver.users.PSUserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserRepositoryUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
     private final PSUserRepository userRepository;
 
-    public UserRepositoryUserDetailsService(PSUserRepository userRepository) {
+    public CustomUserDetailsService(PSUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

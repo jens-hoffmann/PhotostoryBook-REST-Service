@@ -20,7 +20,7 @@
         <div class="row g-5">
 
             <form class="needs-validation" method="POST" th:action="@{/register}" id="registerForm">
-<!--                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>-->
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
                 <label for="username" class="form-label">Username: </label>
                 <input class="form-control" type="text" name="username"/><br/>
 

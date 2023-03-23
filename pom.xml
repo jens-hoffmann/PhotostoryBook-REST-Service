@@ -21,7 +21,6 @@
 		<module>photostorybook-api</module>
 		<module>photostorybook-serviceapp</module>
 		<module>photostorybook-webclient</module>
-		<module>photostorybook-authorizationserver</module>
 	</modules>
 
 	<properties>

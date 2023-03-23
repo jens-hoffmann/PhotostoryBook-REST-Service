@@ -20,7 +20,7 @@ paths:
       operationId: getPhotostories
       security:
         - oauth2photostorybook:
-            - readPhotostory
+            - photostory.read
       tags:
         - photostories
       summary: Returns a list of all photostories
@@ -44,7 +44,7 @@ paths:
         - photostories
       security:
         - oauth2photostorybook:
-            - writePhotostory
+            - photostory.write
       summary: Creates a new photostory
       description: |
         Creates a new photostory for the current authorized user.
@@ -72,7 +72,7 @@ paths:
         - photos
       security:
         - oauth2photostorybook:
-            - readPhotostory
+            - photostory.read
       summary: Get all photo details of photostory identified by storyId
       operationId: downloadPhotoDetailsList
       parameters:
@@ -102,7 +102,7 @@ paths:
         - photos
       security:
         - oauth2photostorybook:
-            - writePhotostory
+            - photostory.write
       summary: Add a new photo to photostory identified by storyId
       operationId: uploadPhoto
       parameters:
@@ -138,7 +138,7 @@ paths:
         - photos
       security:
         - oauth2photostorybook:
-            - readPhotostory
+            - photostory.read
       summary: Get selected photos with photoId of photostory identified by storyId
       operationId: downloadPhoto
       parameters:
@@ -170,36 +170,6 @@ paths:
                 format: binary
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /users:
-    post:
-      tags:
-        - user
-      operationId: createUser
-      summary: Create a new user
-      description: Create a new user
-      requestBody:
-        description: User details
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: alice
-                password:
-                  type: string
-                  format: password
-                fullName:
-                  type: string
-                  example: Alice Cooper
-      responses:
-        '201':
-          description: Successfully created a new user
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateUserResponse'
 
 
 components:
@@ -254,18 +224,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PhotoDetailsResponse'
-    CreateUserResponse:
-      type: object
-      properties:
-        username:
-          type: string
-          example: alice
-        uuid:
-          type: string
-          example: "123e4567-e89b-12d3-a456-426614174000"
-      required:
-        - uuid
-        - username
 
   responses:
     UnauthorizedError:
@@ -279,6 +237,6 @@ components:
           authorizationUrl: /oauth/authorize
           tokenUrl: /oauth/token
           scopes:
-            writePhotostory: create and update photostories
-            readPhotostory: read photostories
-            deletePhotostory: delete photostories
+            photostory.read: create and update photostories
+            photostory.write: read photostories
+            photostory.delete: delete photostories

@@ -14,10 +14,11 @@ spring:
             provider: photostorybook-auth-service
             client-id: photostorybook-webclient
             client-name: photostorybook-webclient
-            client-secret: secret
+            client-secret: d0sEgh3IuxXsg1lh9qhRhsS1ngFfDtDi
             authorization-grant-type: authorization_code
-            redirect-uri: "http://127.0.0.1:8088/login/oauth2/code/{registrationId}"
-            scope: openid,readPhotostory,writePhotostory,deletePhotostory
+            redirect-uri: "http://localhost:8088/login/oauth2/code/{registrationId}"
+            #scope: openid,photostory.read,photostory.write,photostory.delete
         provider:
           photostorybook-auth-service:
-            issuer-uri: http://localhost:9000
+            issuer-uri: http://localhost:9000/realms/PhotostoryBookRealm
+

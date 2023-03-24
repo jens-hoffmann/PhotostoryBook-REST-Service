@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>PhotostoryBook web service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet"
+          href="webjars/bootstrap/5.2.3/dist/css/bootstrap.css"/>
+</head>
+
+<body>
+<div th:replace="fragments/header :: header(module='user')">...</div>
+<div class="container">
+    <main>
+        <div class="py-5 text-center">
+            <h1>User area</h1>
+            <h2 data-th-text="${psuserlongname}">PSUser</h2>
+            <p class="lead">Welcome to PhotostoryBook web services.</p>
+        </div>
+
+    </main>
+</div>
+</body>

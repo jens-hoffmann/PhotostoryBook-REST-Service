@@ -27,11 +27,11 @@ public class SecurityConfiguration {
                 .authorizeRequests()
                         .antMatchers(HttpMethod.OPTIONS).permitAll() // needed for Angular/CORS
                         .antMatchers(HttpMethod.POST, "/photostories",  "/photostories/**")
-                             .hasAuthority("SCOPE_writePhotostory")
+                             .hasAuthority("SCOPE_photostory.write")
                         .antMatchers(HttpMethod.GET, "/photostories",  "/photostories/**")
-                             .hasAuthority("SCOPE_readPhotostory")
+                             .hasAuthority("SCOPE_photostory.read")
                         .antMatchers(HttpMethod.DELETE, "/photostories",  "/photostories/**")
-                                .hasAuthority("SCOPE_writePhotostory")
+                                .hasAuthority("SCOPE_photostory.delete")
                     .antMatchers("/**" ).permitAll()
 
 

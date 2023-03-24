@@ -1,4 +1,5 @@
-
+server:
+  port: 8081
 spring:
   sql:
     init.platform: h2
@@ -21,7 +22,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:9000/oauth2/jwks
+          jwk-set-uri: http://localhost:9000/realms/PhotostoryBookRealm/protocol/openid-connect/certs
 # Database Logging
 logging:
     level:

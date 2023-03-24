@@ -1,6 +1,7 @@
 package org.jhoffmann.photostorybookwebclient.security;
 
 
+import org.jhoffmann.photostorybookwebclient.util.KeycloakLogoutHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,11 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity(debug = false)
 public class SecurityConfiguration {
 
+    private final KeycloakLogoutHandler keycloakLogoutHandler;
+
+    public SecurityConfiguration(KeycloakLogoutHandler keycloakLogoutHandler) {
+        this.keycloakLogoutHandler = keycloakLogoutHandler;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -30,11 +36,17 @@ public class SecurityConfiguration {
         http.authorizeRequests(
                         authorizeRequests -> authorizeRequests
                                 .antMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+                                .antMatchers(HttpMethod.GET, "/").permitAll()
                                 .anyRequest().authenticated()
                 )
 
-                .oauth2Login();
-       //         .oauth2Client(withDefaults());
+                .oauth2Login()
+                .and()
+                .oauth2Client()
+                .and()
+                .logout()
+                .addLogoutHandler(keycloakLogoutHandler)
+                .logoutSuccessUrl("/");
         return http.build();
     }
 

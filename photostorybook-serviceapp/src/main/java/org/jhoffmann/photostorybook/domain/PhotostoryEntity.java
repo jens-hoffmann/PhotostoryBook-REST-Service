@@ -24,6 +24,9 @@ public class PhotostoryEntity {
     private String businesskey;
 
     @NotNull
+    private String userId;
+
+    @NotNull
     private String storyTitle;
 
     @OneToOne
@@ -39,8 +42,9 @@ public class PhotostoryEntity {
     private PhotostoryEntity() {
     }
 
-    public PhotostoryEntity(String storyTitle) {
+    public PhotostoryEntity(String storyTitle, String userId) {
         this.storyTitle = storyTitle;
+        this.userId = userId;
         this.businesskey = UUID.randomUUID().toString();
     }
 }

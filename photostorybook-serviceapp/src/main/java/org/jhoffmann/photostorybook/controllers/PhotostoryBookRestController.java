@@ -12,6 +12,9 @@ import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.jhoffmann.photostorybook.services.PhotostoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +38,15 @@ public class PhotostoryBookRestController implements PhotostoriesApi {
         if (addPhotostoryRequest.getStoryTitle().isEmpty())
             throw new ApiRequestException("PhotostoryBookRestController: story title of photostory is empty !");
         log.debug("Received POST Photostories with title " + addPhotostoryRequest.getStoryTitle());
-        PhotostoryResponse photostoryResponse = photostoryService.addPhotostory(addPhotostoryRequest);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = "";
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
+            log.info("POST uploadPhoto: currentUserName " + currentUserName);
+        } else {
+            throw new ApiRequestException("PhotostoryBookRestController: No authorized user");
+        }
+        PhotostoryResponse photostoryResponse = photostoryService.addPhotostory(addPhotostoryRequest, currentUserName);
 
         return new ResponseEntity<>(photostoryResponse, HttpStatus.CREATED);
     }
@@ -43,7 +54,15 @@ public class PhotostoryBookRestController implements PhotostoriesApi {
     @Override
     public ResponseEntity<PhotostoryListResponse> getPhotostories() {
         log.debug("Received GET Photostories");
-        PhotostoryListResponse listResponse = photostoryService.getPhotostories();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = "";
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
+            log.info("POST uploadPhoto: currentUserName " + currentUserName);
+        } else {
+            throw new ApiRequestException("PhotostoryBookRestController: No authorized user");
+        }
+        PhotostoryListResponse listResponse = photostoryService.getPhotostories(currentUserName);
         return new ResponseEntity<>(listResponse, HttpStatus.OK);
     }
 }

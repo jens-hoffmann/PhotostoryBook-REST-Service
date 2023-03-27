@@ -1,6 +1,7 @@
 package org.jhoffmann.photostorybook;
 
 import org.jhoffmann.photostorybook.domain.PSImageEntity;
+import org.jhoffmann.photostorybook.domain.PSUser;
 import org.jhoffmann.photostorybook.domain.PhotostoryEntity;
 import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -23,11 +24,12 @@ public class PhotostoryServiceApplication {
 		return new CommandLineRunner() {
 			@Override
 			public void run(String... args) throws Exception {
+				PSUser user = new PSUser("testuser", "password", "Test user");
 				List<PSImageEntity> photoList = List.of(
 						new PSImageEntity("image1",  "image1.png", UUID.randomUUID().toString()),
 						new PSImageEntity("image2","image1.png", UUID.randomUUID().toString()));
 
-				PhotostoryEntity photostory = new PhotostoryEntity("my first photostory");
+				PhotostoryEntity photostory = new PhotostoryEntity("my first photostory", user.getBusinesskey());
 				photostory.setPhotos(photoList);
 				photostoryRepository.save(photostory);
 				photostoryRepository.flush();

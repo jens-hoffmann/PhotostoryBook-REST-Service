@@ -9,6 +9,8 @@ import org.jhoffmann.photostorybook.repositories.PSImageRepository;
 import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.jhoffmann.photostorybook.util.FileSystem;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.io.UncheckedIOException;
@@ -32,10 +34,12 @@ public class PhotoService {
         this.photostoryRepository = photostoryRepository;
     }
 
-    public String upload(byte[] imageBytes , String imageFormat, UUID photostoryUUID) {
+    public String upload(byte[] imageBytes , String imageFormat, UUID photostoryUUID,String userId) {
+
         String imageName = UUID.randomUUID().toString();
-        PSImageEntity psImageEntity = new PSImageEntity(imageName +".jpg", imageName);
-        Optional<PhotostoryEntity> photostory = photostoryRepository.findByBusinesskey(photostoryUUID.toString()).stream().findFirst();
+        log.info("PhotoService: upload image " + imageName + " for user " + userId);
+        PSImageEntity psImageEntity = new PSImageEntity(imageName +".jpg", imageName, userId);
+        Optional<PhotostoryEntity> photostory = photostoryRepository.findByBusinesskeyAndUserId(photostoryUUID.toString(), userId).stream().findFirst();
         if (photostory.isEmpty())
             throw new ApiRequestException("PhotoService: upload: No photostory with id "+ photostoryUUID.toString());
         psImageEntity.setPhotostory(photostory.get());
@@ -48,8 +52,9 @@ public class PhotoService {
         return imageName;
     }
 
-    public Optional<byte[]> download( UUID storyId, UUID photoId ) {
-        Optional<PSImageEntity> mayBeImageEntity = imageRepository.findByBusinesskey(photoId.toString()).stream().findFirst();
+    public Optional<byte[]> download( UUID storyId, UUID photoId, String userId) {
+        log.info("PhotoService: download image " + photoId.toString() + " for user " + userId);
+        Optional<PSImageEntity> mayBeImageEntity = imageRepository.findByBusinesskeyAndUserId(photoId.toString(), userId).stream().findFirst();
         if (mayBeImageEntity.isEmpty())
             throw new ApiRequestException("PhotoService: download: No photo with id "+ photoId.toString() + " found !");
         PSImageEntity psImageEntity = mayBeImageEntity.get();
@@ -64,9 +69,9 @@ public class PhotoService {
         }
     }
 
-    public List<PhotoDetailsResponse> downloadPhotosOfStory(UUID storyId) {
+    public List<PhotoDetailsResponse> downloadPhotosOfStory(UUID storyId, String userId) {
         List<PhotoDetailsResponse> responseList = new ArrayList<>();
-        Optional<PhotostoryEntity> photostory = photostoryRepository.findByBusinesskey(storyId.toString()).stream().findFirst();
+        Optional<PhotostoryEntity> photostory = photostoryRepository.findByBusinesskeyAndUserId(storyId.toString(), userId).stream().findFirst();
         if (photostory.isEmpty())
             throw new ApiRequestException("PhotoService: downloadPhotosOfStory: No photostory with id "+ storyId.toString());
         PhotostoryEntity photostoryEntity = photostory.get();

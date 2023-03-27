@@ -21,6 +21,9 @@ public class PSImageEntity {
     private String title;
 
     @NotNull
+    private String userId;
+
+    @NotNull
     private String businesskey;
     @NotNull
     private String imageUrl;
@@ -33,14 +36,17 @@ public class PSImageEntity {
 
     }
 
-    public PSImageEntity(String imageUrl, String businesskey) {
+    public PSImageEntity(String imageUrl, String businesskey, String userId) {
         this.imageUrl = imageUrl;
         this.businesskey = businesskey;
+        this.userId = userId;
+
     }
 
-    public PSImageEntity(String title, String imageUrl, String businesskey) {
+    public PSImageEntity(String title, String imageUrl, String businesskey, String userId) {
         this.title = title;
         this.imageUrl = imageUrl;
         this.businesskey = businesskey;
+        this.userId = userId;
     }
 }

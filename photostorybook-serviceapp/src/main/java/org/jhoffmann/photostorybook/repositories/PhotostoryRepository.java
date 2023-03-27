@@ -7,6 +7,7 @@ import java.util.List;
 
 
 public interface PhotostoryRepository extends JpaRepository<PhotostoryEntity, Long> {
-    List<PhotostoryEntity> findByBusinesskey(String businesskey);
+    List<PhotostoryEntity> findByBusinesskeyAndUserId(String businesskey, String userId);
+    List<PhotostoryEntity> findByUserId(String userId);
 
 }

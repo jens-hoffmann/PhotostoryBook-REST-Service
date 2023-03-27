@@ -13,6 +13,11 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +50,15 @@ public class PhotosRestController implements PhotosApi {
             @RequestBody Resource body
     ) {
         log.info("POST uploadPhoto");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = "";
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
+            log.info("POST uploadPhoto: currentUserName " + currentUserName);
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         try {
             InputStream inputStream = body.getInputStream();
 
@@ -53,7 +67,7 @@ public class PhotosRestController implements PhotosApi {
 
             inputStream.reset();
 
-            String uuidFilename = photoService.upload(inputStream.readAllBytes(), "jpg", storyId);
+            String uuidFilename = photoService.upload(inputStream.readAllBytes(), "jpg", storyId, currentUserName);
             PhotoDetailsResponse photoDetailsResponse = new PhotoDetailsResponse();
             log.info("POST uploadPhoto with UUID " + uuidFilename);
             photoDetailsResponse.setUuid(UUID.fromString(uuidFilename));
@@ -68,7 +82,16 @@ public class PhotosRestController implements PhotosApi {
     }
 
     public ResponseEntity<PhotoDetailsListResponse> downloadPhotoDetailsList(@PathVariable("storyId")  UUID storyId) {
-        List<PhotoDetailsResponse> responseList = photoService.downloadPhotosOfStory(storyId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = "";
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
+            log.info("POST uploadPhoto: currentUserName " + currentUserName);
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        List<PhotoDetailsResponse> responseList = photoService.downloadPhotosOfStory(storyId, currentUserName);
         if (responseList.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -82,8 +105,15 @@ public class PhotosRestController implements PhotosApi {
             @PathVariable("storyId") UUID storyId,
             @PathVariable("photoId") UUID photoId
     ) {
-
-        Optional<byte[]> mayBeDownloaded = photoService.download(storyId, photoId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = "";
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
+            log.info("POST uploadPhoto: currentUserName " + currentUserName);
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        Optional<byte[]> mayBeDownloaded = photoService.download(storyId, photoId, currentUserName);
         if (mayBeDownloaded.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 

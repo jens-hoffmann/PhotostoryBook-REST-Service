@@ -8,5 +8,6 @@ import java.util.List;
 
 
 public interface PSImageRepository extends JpaRepository<PSImageEntity, Long> {
-    List<PSImageEntity> findByBusinesskey(String businesskey);
+    List<PSImageEntity> findByBusinesskeyAndUserId(String businesskey, String userId);
+    List<PSImageEntity> findByUserId(String userId);
 }

@@ -38,8 +38,8 @@ public class PhotostoryService {
         return response;
     }
 
-    public PhotostoryListResponse getPhotostories() {
-        List<PhotostoryEntity> entityList = photostoryRepository.findAll();
+    public PhotostoryListResponse getPhotostories(String userId) {
+        List<PhotostoryEntity> entityList = photostoryRepository.findByUserId(userId);
         log.debug("PhotostoryService: getPhotostories " + entityList.size() + " entities from repository");
         PhotostoryListResponse photostoryListResponse = new PhotostoryListResponse();
         photostoryListResponse.setPhotostories(entityList.stream()
@@ -49,15 +49,15 @@ public class PhotostoryService {
         return  photostoryListResponse;
     }
 
-    public PhotostoryResponse addPhotostory(AddPhotostoryRequest addPhotostoryRequest) {
-        PhotostoryEntity entity = new PhotostoryEntity(addPhotostoryRequest.getStoryTitle());
+    public PhotostoryResponse addPhotostory(AddPhotostoryRequest addPhotostoryRequest, String userId) {
+        PhotostoryEntity entity = new PhotostoryEntity(addPhotostoryRequest.getStoryTitle(), userId);
         log.debug("PhotostoryService: addPhotostory " + entity.getStoryTitle() );
         PhotostoryEntity savedEntity = photostoryRepository.save(entity);
         return entityToResponse(savedEntity);
     }
 
-    public PhotostoryResponse findPhotostoryByBusinesskey(String businesskey) {
-        Optional<PhotostoryEntity> first = photostoryRepository.findByBusinesskey(businesskey).stream().findFirst();
+    public PhotostoryResponse findPhotostoryByBusinesskeyAndUserId(String businesskey, String userId) {
+        Optional<PhotostoryEntity> first = photostoryRepository.findByBusinesskeyAndUserId(businesskey, userId).stream().findFirst();
         if (first.isEmpty()) {
             throw new ApiRequestException("PhotostoryService: no PhotostoryEntity with businesskey "+ businesskey + "!");
         }

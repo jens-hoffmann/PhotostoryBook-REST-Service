@@ -12,6 +12,10 @@ feign:
     clientRegistrationId: photostorybook-auth-service
 
 spring:
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
   cloud:
     openfeign:
       oauth2:
@@ -40,4 +44,5 @@ spring:
             authorization-uri: http://localhost:9000/realms/PhotostoryBookRealm/protocol/openid-connect/auth
             token-uri: http://localhost:9000/realms/PhotostoryBookRealm/protocol/openid-connect/token
             user-info-uri: http://localhost:9000/realms/PhotostoryBookRealm/protocol/openid-connect/userinfo
+
 

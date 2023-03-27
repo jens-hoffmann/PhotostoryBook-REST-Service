@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -65,4 +66,20 @@ public class PhotostoryBookRestController implements PhotostoriesApi {
         PhotostoryListResponse listResponse = photostoryService.getPhotostories(currentUserName);
         return new ResponseEntity<>(listResponse, HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<Void> deletePhotostory(UUID storyId) {
+        log.debug("Received DELETE Photostories");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = "";
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
+            log.info("DELETE deletePhotostory: currentUserName " + currentUserName);
+        } else {
+            throw new ApiRequestException("PhotostoryBookRestController: No authorized user");
+        }
+        photostoryService.deletePhotostory(currentUserName, storyId.toString());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

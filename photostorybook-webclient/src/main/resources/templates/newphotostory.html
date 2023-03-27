@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>PhotostoryBook web service</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <link rel="stylesheet"
+        href="/webjars/bootstrap/5.2.3/dist/css/bootstrap.css" />
+</head>
+<body>
+<div th:replace="fragments/header :: header(module='photostories')">...</div>
+<div class="container">
+  <main>
+    <div class="py-5 text-center">
+      <h1>New Photostory</h1>
+      <p class="lead">Please select Login to register as new user or login with your account to access your personal photo stories.</p>
+    </div>
+    <div class="row g-5">
+
+      <form class="needs-validation" method="POST" th:action="@{/photostories/create}" id="createStoryForm">
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+        <label for="storyTitle" class="form-label">Title: </label>
+        <input class="form-control" type="text" name="storyTitle"/><br/>
+
+        <label for="titleImage" class="form-label">Title image: </label>
+        <input class="form-control" type="text" name="titleImage" /><br/>
+
+
+        <input class="btn btn-primary btn-lg" type="submit" value="Create"/>
+      </form>
+
+    </div>
+
+  </main>
+
+</div>
+</body>
+
+</html>

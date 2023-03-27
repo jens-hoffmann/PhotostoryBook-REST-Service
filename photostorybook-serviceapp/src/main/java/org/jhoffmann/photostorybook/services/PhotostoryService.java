@@ -49,6 +49,14 @@ public class PhotostoryService {
         return  photostoryListResponse;
     }
 
+    public void deletePhotostory(String userId, String storyId) {
+        List<PhotostoryEntity> entityList = photostoryRepository.findByBusinesskeyAndUserId(storyId, userId);
+        log.debug("PhotostoryService: deletePhotostories " + entityList.size() + " entities from repository");
+        for (PhotostoryEntity entity : entityList) {
+            photostoryRepository.delete(entity);
+        }
+    }
+
     public PhotostoryResponse addPhotostory(AddPhotostoryRequest addPhotostoryRequest, String userId) {
         PhotostoryEntity entity = new PhotostoryEntity(addPhotostoryRequest.getStoryTitle(), userId);
         log.debug("PhotostoryService: addPhotostory " + entity.getStoryTitle() );

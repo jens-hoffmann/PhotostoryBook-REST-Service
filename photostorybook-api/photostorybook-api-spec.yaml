@@ -66,7 +66,8 @@ paths:
                 $ref: '#/components/schemas/PhotostoryResponse'
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /photostories/{storyId}/photos:
+
+  /photostories/view/{storyId}:
     get:
       tags:
         - photos
@@ -97,6 +98,7 @@ paths:
           description: Photostory contains no photos.
         401:
           $ref: '#/components/responses/UnauthorizedError'
+  /photostories/edit/{storyId}/photos:
     post:
       tags:
         - photos
@@ -132,7 +134,33 @@ paths:
                 $ref: '#/components/schemas/PhotoDetailsResponse'
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /photostories/{storyId}/photos/{photoId}:
+
+  /photostories/delete/{storyId}:
+    post:
+      operationId: deletePhotostory
+      tags:
+        - photostories
+      security:
+        - oauth2photostorybook:
+            - photostory.delete
+      summary: Delete a photostory
+      description: |
+        Deletes a photostory of the current authorized user.
+      parameters:
+        - in: path
+          name: storyId
+          description: photostory id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        200:
+          description: Successfully deleted photostory
+
+  /photostories/view/{storyId}/photos/{photoId}:
     get:
       tags:
         - photos

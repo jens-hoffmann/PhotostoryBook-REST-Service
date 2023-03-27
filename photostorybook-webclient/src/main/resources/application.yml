@@ -1,11 +1,27 @@
+
+debug: true
+
 server:
   port: 8080
+
+feign:
+  oauth2:
+    enabled: true
+  client:
+    refresh-enabled: true
+    clientRegistrationId: photostorybook-auth-service
 
 spring:
   cloud:
     openfeign:
       oauth2:
         enabled: true
+        clientRegistrationId: photostorybook-auth-service
+      client:
+        config:
+          PhotostoryRestService:
+            url: http://localhost:8081
+            loggerLevel: full
   security:
     oauth2:
       client:

@@ -17,14 +17,14 @@
     </div>
     <div class="row g-5">
 
-      <form class="needs-validation" method="POST" th:action="@{/photostories/create}" id="createStoryForm">
+      <form class="needs-validation" method="POST" th:action="@{/photostories/create}" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
         <label for="storyTitle" class="form-label">Title: </label>
-        <input class="form-control" type="text" name="storyTitle"/><br/>
+        <input class="form-control" type="text"  id="storyTitle" name="storyTitle"/><br/>
 
         <label for="titleImage" class="form-label">Title image: </label>
-        <input class="form-control" type="text" name="titleImage" /><br/>
-
+        <input class="form-control" type="file"name="titleImage" id="titleImage"><br/>
 
         <input class="btn btn-primary btn-lg" type="submit" value="Create"/>
       </form>

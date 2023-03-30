@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import javax.validation.constraints.Pattern;
@@ -45,10 +46,8 @@ public class PhotosRestController implements PhotosApi {
 
     }
 
-    public ResponseEntity<PhotoDetailsResponse> uploadPhoto(
-            @PathVariable("storyId") UUID storyId,
-            @RequestBody Resource body
-    ) {
+    @Override
+    public ResponseEntity<PhotoDetailsResponse> uploadPhoto(UUID storyId, MultipartFile titleImage) {
         log.info("POST uploadPhoto");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = "";
@@ -60,13 +59,7 @@ public class PhotosRestController implements PhotosApi {
         }
 
         try {
-            InputStream inputStream = body.getInputStream();
-
-            BufferedImage image = ImageIO.read(inputStream); // if not image IOExecption will be thrown
-            log.info("POST uploadPhoto: "+ image.toString());
-
-            inputStream.reset();
-
+            InputStream inputStream = titleImage.getInputStream();
             String uuidFilename = photoService.upload(inputStream.readAllBytes(), "jpg", storyId, currentUserName);
             PhotoDetailsResponse photoDetailsResponse = new PhotoDetailsResponse();
             log.info("POST uploadPhoto with UUID " + uuidFilename);

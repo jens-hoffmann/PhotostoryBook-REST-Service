@@ -46,6 +46,24 @@
 		</dependency>
 
 		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-core</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.github.openfeign.feign-form/feign-form -->
+		<dependency>
+			<groupId>io.github.openfeign.form</groupId>
+			<artifactId>feign-form</artifactId>
+			<version>3.8.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.github.openfeign.form/feign-form-spring -->
+		<dependency>
+			<groupId>io.github.openfeign.form</groupId>
+			<artifactId>feign-form-spring</artifactId>
+			<version>3.8.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webflux</artifactId>
 		</dependency>
@@ -68,7 +86,6 @@
 			<version>8.3.3</version>
 			<type>pom</type>
 		</dependency>
-
 
 		<!-- https://mvnrepository.com/artifact/io.github.openfeign/feign-jackson -->
 		<dependency>
@@ -171,7 +188,6 @@
 							<inputSpec>${project.basedir}/../photostorybook-api/photostorybook-api-spec.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>feign</library>
-
 						</configuration>
 					</execution>
 				</executions>

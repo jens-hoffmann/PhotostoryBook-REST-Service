@@ -6,6 +6,10 @@ spring:
     init.mode: embedded
   h2:
     console.enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
   jpa:
     defer-datasource-initialization: true
     database-platform: org.hibernate.dialect.H2Dialect

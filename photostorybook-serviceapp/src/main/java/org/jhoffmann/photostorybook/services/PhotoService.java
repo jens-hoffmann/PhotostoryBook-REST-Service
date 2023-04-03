@@ -8,6 +8,7 @@ import org.jhoffmann.photostorybook.exceptions.ApiRequestException;
 import org.jhoffmann.photostorybook.repositories.PSImageRepository;
 import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.jhoffmann.photostorybook.util.FileSystem;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -52,6 +53,7 @@ public class PhotoService {
         return imageName;
     }
 
+    @Cacheable( cacheNames = "photostory-service.filesystem.photo", key = "#photoId", unless = "#result == null")
     public Optional<byte[]> download( UUID storyId, UUID photoId, String userId) {
         log.info("PhotoService: download image " + photoId.toString() + " for user " + userId);
         Optional<PSImageEntity> mayBeImageEntity = imageRepository.findByBusinesskeyAndUserId(photoId.toString(), userId).stream().findFirst();

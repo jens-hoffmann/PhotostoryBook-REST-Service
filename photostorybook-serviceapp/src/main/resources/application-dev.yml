@@ -28,6 +28,10 @@ spring:
         jwt:
           issuer-uri: http://localhost:9000/realms/PhotostoryBookRealm
           jwk-set-uri: http://localhost:9000/realms/PhotostoryBookRealm/protocol/openid-connect/certs
+
+  cache:
+    caffeine:
+      spec: maximumSize=100, expireAfterWrite=60s
 # Database Logging
 logging:
     level:

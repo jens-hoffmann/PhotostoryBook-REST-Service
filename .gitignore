@@ -33,4 +33,4 @@ nbactions.xml
 .vscode/
 
 db/*
-
+photostorybook-serviceapp/photos

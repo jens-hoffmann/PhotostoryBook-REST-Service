@@ -1,17 +1,15 @@
 package org.jhoffmann.photostorybookwebclient.controllers;
 
+import ch.qos.logback.classic.spi.EventArgUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jhoffmann.photostorybookwebclient.services.PhotoRestService;
 import org.jhoffmann.photostorybookwebclient.services.PhotostoryRestService;
 import org.jhoffmann.photostorybookwebclient.util.NewPhotostoryForm;
-import org.openapitools.client.model.AddPhotostoryRequest;
-import org.openapitools.client.model.PhotoDetailsResponse;
-import org.openapitools.client.model.PhotostoryListResponse;
-import org.openapitools.client.model.PhotostoryResponse;
-import org.springframework.core.io.PathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import org.openapitools.client.model.*;
+import org.springframework.core.io.*;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +17,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Part;
 import javax.validation.Valid;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
+
+import static java.util.concurrent.TimeUnit.DAYS;
+import static org.springframework.util.DigestUtils.md5DigestAsHex;
 
 @Slf4j
 @Controller
@@ -90,6 +92,9 @@ public class PhotostoryController {
         UUID photoUuid = detailsResponse.getUuid();
         log.info("CreatePhotostoryController: uploaded photo "+ photoUuid.toString());
 
+        ModifyPhotostoryRequest modifyPhotostoryRequest = new ModifyPhotostoryRequest();
+        modifyPhotostoryRequest.setPhotoId(photoUuid);
+        PhotostoryResponse photostoryResponse = photostoryRestService.modifyPhotostory(storyResponse.getUuid(), modifyPhotostoryRequest);
 
         return "redirect:/photostories";
     }
@@ -106,5 +111,31 @@ public class PhotostoryController {
         log.info("PhotostoryController: viewPhotostory with id " + storyid);
 
         return "photostory_details";
+    }
+
+    @GetMapping("/view/{storyId}/photos/{photoId}")
+    public ResponseEntity<Resource> showPhoto(@PathVariable("storyId") String storyId, @PathVariable("photoId") String photoId) throws IOException {
+        log.info("PhotostoryController:showPhoto with id "+ photoId);
+
+        ByteArrayResource byteArrayResource = new ByteArrayResource(photoRestService.downloadPhoto(UUID.fromString(storyId), UUID.fromString(photoId)));
+
+        log.info("PhotostoryController:showPhoto with file " + byteArrayResource.toString());
+        final Resource photo;
+        final String etag;
+
+        CacheControl cacheControl = CacheControl.noCache();
+        if ( byteArrayResource != null) {
+            cacheControl = CacheControl.maxAge(30, DAYS);
+        } else {
+            photo = new ClassPathResource("/no_photo.png");
+        }
+        etag = md5DigestAsHex(byteArrayResource.getInputStream());
+        return ResponseEntity
+                .ok()
+                .cacheControl(cacheControl)
+                .eTag(etag)
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(byteArrayResource);
+
     }
 }

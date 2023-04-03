@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.jhoffmann.photostorybook.api.v1.PhotostoriesApi;
 import org.jhoffmann.photostorybook.api.v1.model.AddPhotostoryRequest;
+import org.jhoffmann.photostorybook.api.v1.model.ModifyPhotostoryRequest;
 import org.jhoffmann.photostorybook.api.v1.model.PhotostoryListResponse;
 import org.jhoffmann.photostorybook.api.v1.model.PhotostoryResponse;
 import org.jhoffmann.photostorybook.domain.PhotostoryEntity;
@@ -65,6 +66,22 @@ public class PhotostoryBookRestController implements PhotostoriesApi {
         }
         PhotostoryListResponse listResponse = photostoryService.getPhotostories(currentUserName);
         return new ResponseEntity<>(listResponse, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<PhotostoryResponse> modifyPhotostory(UUID storyId, ModifyPhotostoryRequest modifyPhotostoryRequest) {
+        log.debug("PhotostoryBookRestController: modifyPhotostory");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = "";
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
+            log.info("PhotostoryBookRestController: modifyPhotostory: currentUserName " + currentUserName);
+        } else {
+            throw new ApiRequestException("PhotostoryBookRestController: modifyPhotostory: No authorized user");
+        }
+        PhotostoryResponse photostoryResponse = photostoryService.modifyPhotostory(modifyPhotostoryRequest, currentUserName, storyId);
+        return new ResponseEntity<>(photostoryResponse, HttpStatus.ACCEPTED);
+
     }
 
     @Override

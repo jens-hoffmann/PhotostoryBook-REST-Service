@@ -98,6 +98,76 @@ paths:
           description: Photostory contains no photos.
         401:
           $ref: '#/components/responses/UnauthorizedError'
+
+
+  /photostories/delete/{storyId}:
+    post:
+      operationId: deletePhotostory
+      tags:
+        - photostories
+      security:
+        - oauth2photostorybook:
+            - photostory.delete
+      summary: Delete a photostory
+      description: |
+        Deletes a photostory of the current authorized user.
+      parameters:
+        - in: path
+          name: storyId
+          description: photostory id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        200:
+          description: Successfully deleted photostory
+
+  /photostories/edit/{storyId}:
+    post:
+      tags:
+        - photostories
+      security:
+        - oauth2photostorybook:
+            - photostory.write
+      summary: modify photostory identified by storyId
+      operationId: modifyPhotostory
+      parameters:
+        - in: path
+          name: storyId
+          description: photostory id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                storyTitle:
+                  type: string
+                  example: "An awesome title for a new photostory."
+                photoId:
+                  type: string
+                  format: uuid
+                  pattern: '^[0-9a-fA-F\-]{36}$'
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        202:
+          description: Successfully modified photostory.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotostoryResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
   /photostories/edit/{storyId}/photos:
     post:
       tags:
@@ -138,31 +208,6 @@ paths:
         401:
           $ref: '#/components/responses/UnauthorizedError'
 
-  /photostories/delete/{storyId}:
-    post:
-      operationId: deletePhotostory
-      tags:
-        - photostories
-      security:
-        - oauth2photostorybook:
-            - photostory.delete
-      summary: Delete a photostory
-      description: |
-        Deletes a photostory of the current authorized user.
-      parameters:
-        - in: path
-          name: storyId
-          description: photostory id
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F\-]{36}$'
-            example: "123e4567-e89b-12d3-a456-426614174000"
-      responses:
-        200:
-          description: Successfully deleted photostory
-
   /photostories/view/{storyId}/photos/{photoId}:
     get:
       tags:
@@ -195,10 +240,10 @@ paths:
         200:
           description: Successfully retrieved photos of photostory
           content:
-            image/jpeg:
+            image/jpg:
               schema:
                 type: string
-                format: binary
+                format: byte
         401:
           $ref: '#/components/responses/UnauthorizedError'
 
@@ -224,8 +269,11 @@ components:
         storyTitle:
           type: string
           example: An awesome title for a new photostory.
-        titlePhotoURI:
+        titlePhotoId:
           type: string
+          format: uuid
+          pattern: '^[0-9a-fA-F\-]{36}$'
+          example: "123e4567-e89b-12d3-a456-426614174000"
       required:
         - uuid
         - storyTitle

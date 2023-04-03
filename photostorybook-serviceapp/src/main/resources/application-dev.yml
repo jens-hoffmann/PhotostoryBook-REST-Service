@@ -28,7 +28,6 @@ spring:
         jwt:
           issuer-uri: http://localhost:9000/realms/PhotostoryBookRealm
           jwk-set-uri: http://localhost:9000/realms/PhotostoryBookRealm/protocol/openid-connect/certs
-
   cache:
     caffeine:
       spec: maximumSize=100, expireAfterWrite=60s
@@ -37,3 +36,10 @@ logging:
     level:
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+photostorybook:
+  photos:
+    path: "./photos"
+  thumbnail:
+    width: 225
+    height: 225

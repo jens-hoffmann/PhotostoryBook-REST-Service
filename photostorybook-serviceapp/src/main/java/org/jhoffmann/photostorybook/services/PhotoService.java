@@ -9,9 +9,6 @@ import org.jhoffmann.photostorybook.repositories.PSImageRepository;
 import org.jhoffmann.photostorybook.repositories.PhotostoryRepository;
 import org.jhoffmann.photostorybook.util.FileSystem;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.io.UncheckedIOException;
@@ -19,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Slf4j
 @Service
@@ -27,15 +26,17 @@ public class PhotoService {
     private final FileSystem fs;
     private final PSImageRepository imageRepository;
     private final PhotostoryRepository photostoryRepository;
+    private final Thumbnail thumbnail;
 
-
-    public PhotoService(FileSystem fs, PSImageRepository imageRepository, PhotostoryRepository photostoryRepository) {
+    public PhotoService(FileSystem fs, PSImageRepository imageRepository, PhotostoryRepository photostoryRepository, Thumbnail thumbnail) {
         this.fs = fs;
         this.imageRepository = imageRepository;
         this.photostoryRepository = photostoryRepository;
+        this.thumbnail = thumbnail;
     }
 
     public String upload(byte[] imageBytes , String imageFormat, UUID photostoryUUID,String userId) {
+        Future<byte[]> thumbnailBytes = thumbnail.thumbnail( imageBytes );
 
         String imageName = UUID.randomUUID().toString();
         log.info("PhotoService: upload image " + imageName + " for user " + userId);
@@ -50,11 +51,19 @@ public class PhotoService {
         // TODO set correct file extension
         fs.store( imageName + ".jpg", imageBytes );
 
+        try {
+            log.info( "upload thumbnail" );
+            fs.store( imageName + "-thumb.jpg", thumbnailBytes.get() );
+        }
+        catch (InterruptedException | ExecutionException e ) {
+            throw new IllegalStateException( e );
+        }
+
         return imageName;
     }
 
     @Cacheable( cacheNames = "photostory-service.filesystem.photo", key = "#photoId", unless = "#result == null")
-    public Optional<byte[]> download( UUID storyId, UUID photoId, String userId) {
+    public Optional<byte[]> download( UUID storyId, UUID photoId, String userId, boolean loadThumbnail) {
         log.info("PhotoService: download image " + photoId.toString() + " for user " + userId);
         Optional<PSImageEntity> mayBeImageEntity = imageRepository.findByBusinesskeyAndUserId(photoId.toString(), userId).stream().findFirst();
         if (mayBeImageEntity.isEmpty())
@@ -64,7 +73,12 @@ public class PhotoService {
         if (! storyId.equals(UUID.fromString(photostory.getBusinesskey())))
             throw new ApiRequestException("PhotoService: download: Photo not in photostory id "+ storyId.toString());
         try {
-            return Optional.of( fs.load( psImageEntity.getImageUrl() ) );
+            if (loadThumbnail) {
+                return Optional.of( fs.load( psImageEntity.getImageUrl().replace(".jpg", "-thumb.jpg") ) );
+            } else {
+                return Optional.of( fs.load( psImageEntity.getImageUrl() ) );
+            }
+
         }
         catch ( UncheckedIOException e ) {
             return Optional.empty();

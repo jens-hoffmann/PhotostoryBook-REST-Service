@@ -244,6 +244,44 @@ paths:
         401:
           $ref: '#/components/responses/UnauthorizedError'
 
+  /photostories/view/{storyId}/thumbnails/{photoId}:
+    get:
+      tags:
+        - photos
+      security:
+        - oauth2photostorybook:
+            - photostory.read
+      summary: Get selected thumbnails from photo with photoId of photostory identified by storyId
+      operationId: downloadThumbnail
+      parameters:
+        - in: path
+          name: storyId
+          description: photostory id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+        - in: path
+          name: photoId
+          description: photo id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        200:
+          description: Successfully retrieved thumbnail
+          content:
+            image/jpg:
+              schema:
+                type: string
+                format: byte
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
 
 components:
   schemas:

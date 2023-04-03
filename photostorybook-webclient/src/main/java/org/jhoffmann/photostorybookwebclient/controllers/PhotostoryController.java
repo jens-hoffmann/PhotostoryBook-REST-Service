@@ -138,4 +138,30 @@ public class PhotostoryController {
                 .body(resource);
 
     }
+
+    @GetMapping("/view/{storyId}/thumbnails/{photoId}")
+    public ResponseEntity<Resource> showthumbnail(@PathVariable("storyId") String storyId, @PathVariable("photoId") String photoId) throws IOException {
+        log.info("PhotostoryController:showPhoto with id "+ photoId);
+
+        Resource resource = new ByteArrayResource(photoRestService.downloadThumbnail(UUID.fromString(storyId), UUID.fromString(photoId)));
+
+        log.info("PhotostoryController:showPhoto with file " + resource.toString());
+        final Resource photo;
+        final String etag;
+
+        CacheControl cacheControl = CacheControl.noCache();
+        if ( resource != null) {
+            cacheControl = CacheControl.maxAge(30, DAYS);
+        } else {
+            resource = new ClassPathResource("/no_photo.png");
+        }
+        etag = md5DigestAsHex(resource.getInputStream());
+        return ResponseEntity
+                .ok()
+                .cacheControl(cacheControl)
+                .eTag(etag)
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(resource);
+
+    }
 }

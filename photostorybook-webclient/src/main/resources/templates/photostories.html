@@ -27,7 +27,7 @@
                              <div class="col" th:each="photostory: ${photostoryList}">
                                  <div class="card shadow-sm">
                                      <img class="bd-placeholder-img card-img-top" width="100%" height="225" alt="Thumbnail"
-                                          th:src="@{/photostories/view/{storyId}/photos/{photoId}(storyId = ${photostory.uuid}, photoId = ${photostory.titlePhotoId})}">
+                                          th:src="@{/photostories/view/{storyId}/thumbnails/{photoId}(storyId = ${photostory.uuid}, photoId = ${photostory.titlePhotoId})}">
                                      <div class="card-body">
                                          <p class="card-text" th:text="${photostory.storyTitle}">Card Text.</p>
                                          <div class="d-flex justify-content-between align-items-center">

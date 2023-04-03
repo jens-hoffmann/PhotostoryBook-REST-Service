@@ -90,12 +90,27 @@ public class PhotosRestController implements PhotosApi {
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        Optional<byte[]> mayBeDownloaded = photoService.download(storyId, photoId, currentUserName);
+        Optional<byte[]> mayBeDownloaded = photoService.download(storyId, photoId, currentUserName, false);
         if (mayBeDownloaded.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         return ResponseEntity.ok( mayBeDownloaded.get() );
+    }
 
+    @Override
+    public ResponseEntity<byte[]> downloadThumbnail(UUID storyId, UUID photoId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = "";
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
+            log.info("POST uploadPhoto: currentUserName " + currentUserName);
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        Optional<byte[]> mayBeDownloaded = photoService.download(storyId, photoId, currentUserName, true);
+        if (mayBeDownloaded.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
+        return ResponseEntity.ok( mayBeDownloaded.get() );
     }
 }

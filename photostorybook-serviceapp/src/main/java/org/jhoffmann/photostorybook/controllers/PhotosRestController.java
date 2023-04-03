@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -37,7 +38,7 @@ public class PhotosRestController implements PhotosApi {
     }
 
     @Override
-    public ResponseEntity<PhotoDetailsResponse> uploadPhoto(UUID storyId, MultipartFile titleImage) {
+    public ResponseEntity<PhotoDetailsResponse> uploadPhoto(UUID storyId, @Valid byte[] body) {
         log.info("POST uploadPhoto");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = "";
@@ -48,20 +49,13 @@ public class PhotosRestController implements PhotosApi {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        try {
-            InputStream inputStream = titleImage.getInputStream();
-            String uuidFilename = photoService.upload(inputStream.readAllBytes(), "jpg", storyId, currentUserName);
-            PhotoDetailsResponse photoDetailsResponse = new PhotoDetailsResponse();
-            log.info("POST uploadPhoto with UUID " + uuidFilename);
-            photoDetailsResponse.setUuid(UUID.fromString(uuidFilename));
-            photoDetailsResponse.setPhotoTitle("No title");
+        String uuidFilename = photoService.upload(body, "jpg", storyId, currentUserName);
+        PhotoDetailsResponse photoDetailsResponse = new PhotoDetailsResponse();
+        log.info("POST uploadPhoto with UUID " + uuidFilename);
+        photoDetailsResponse.setUuid(UUID.fromString(uuidFilename));
+        photoDetailsResponse.setPhotoTitle("No title");
 
-            return new ResponseEntity<>(photoDetailsResponse, HttpStatus.CREATED);
-
-        } catch (IOException e) {
-            throw new ApiRequestException("Failed to upload image: " + e.getMessage());
-        }
-
+        return new ResponseEntity<>(photoDetailsResponse, HttpStatus.CREATED);
     }
 
     public ResponseEntity<PhotoDetailsListResponse> downloadPhotoDetailsList(@PathVariable("storyId")  UUID storyId) {

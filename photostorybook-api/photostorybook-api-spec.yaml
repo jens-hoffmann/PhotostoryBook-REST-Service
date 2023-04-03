@@ -191,13 +191,10 @@ paths:
         description: Photo image file in PNG format
         required: true
         content:
-          multipart/form-data:
+          image/jpg:
             schema:
-              type: object
-              properties:
-                titleImage:
-                  type: string
-                  format: binary
+              type: string
+              format: byte
       responses:
         201:
           description: Successfully upload a photo.

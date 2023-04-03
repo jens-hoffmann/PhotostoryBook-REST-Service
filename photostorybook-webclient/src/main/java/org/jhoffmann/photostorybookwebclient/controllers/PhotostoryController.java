@@ -1,23 +1,22 @@
 package org.jhoffmann.photostorybookwebclient.controllers;
 
-import ch.qos.logback.classic.spi.EventArgUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jhoffmann.photostorybookwebclient.services.PhotoRestService;
 import org.jhoffmann.photostorybookwebclient.services.PhotostoryRestService;
-import org.jhoffmann.photostorybookwebclient.util.NewPhotostoryForm;
 import org.openapitools.client.model.*;
-import org.springframework.core.io.*;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Part;
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,7 +67,7 @@ public class PhotostoryController {
 
     @PostMapping(path = "/create", consumes = {"multipart/form-data"})
     public String processRegistration(@Valid @RequestParam("storyTitle") String storyTitle, @Valid @RequestParam("titleImage") Part titleImage) throws IOException {
-
+        String imageContentType = titleImage.getContentType();
         log.info("CreatePhotostoryController: processRegistration " + storyTitle);
         // create Photostory
         AddPhotostoryRequest addPhotostoryRequest = new AddPhotostoryRequest();
@@ -76,9 +75,9 @@ public class PhotostoryController {
         PhotostoryResponse storyResponse = photostoryRestService.addPhotostory(addPhotostoryRequest);
         // process title image
         Path titleImagePath;
-        if (titleImage.getContentType().equals(MediaType.IMAGE_JPEG_VALUE)) {
+        if (imageContentType.equals(MediaType.IMAGE_JPEG_VALUE)) {
             titleImagePath = Files.createTempFile("titleImage_", ".jpg");
-        } else if (titleImage.getContentType().equals(MediaType.IMAGE_PNG_VALUE)) {
+        } else if (imageContentType.equals(MediaType.IMAGE_PNG_VALUE)) {
             titleImagePath = Files.createTempFile("titleImage_", ".png");
         } else {
             return "redirect:/photostories";
@@ -88,7 +87,7 @@ public class PhotostoryController {
                 titleImagePath,
                 StandardCopyOption.REPLACE_EXISTING);
         log.info(" CreatePhotostoryController: temp file " + titleImagePath.toString());
-        PhotoDetailsResponse detailsResponse = photoRestService.uploadPhoto(storyResponse.getUuid(), titleImagePath.toFile());
+        PhotoDetailsResponse detailsResponse = photoRestService.uploadPhoto(storyResponse.getUuid(), titleImage.getInputStream().readAllBytes());
         UUID photoUuid = detailsResponse.getUuid();
         log.info("CreatePhotostoryController: uploaded photo "+ photoUuid.toString());
 
@@ -117,25 +116,25 @@ public class PhotostoryController {
     public ResponseEntity<Resource> showPhoto(@PathVariable("storyId") String storyId, @PathVariable("photoId") String photoId) throws IOException {
         log.info("PhotostoryController:showPhoto with id "+ photoId);
 
-        ByteArrayResource byteArrayResource = new ByteArrayResource(photoRestService.downloadPhoto(UUID.fromString(storyId), UUID.fromString(photoId)));
+        Resource resource = new ByteArrayResource(photoRestService.downloadPhoto(UUID.fromString(storyId), UUID.fromString(photoId)));
 
-        log.info("PhotostoryController:showPhoto with file " + byteArrayResource.toString());
+        log.info("PhotostoryController:showPhoto with file " + resource.toString());
         final Resource photo;
         final String etag;
 
         CacheControl cacheControl = CacheControl.noCache();
-        if ( byteArrayResource != null) {
+        if ( resource != null) {
             cacheControl = CacheControl.maxAge(30, DAYS);
         } else {
-            photo = new ClassPathResource("/no_photo.png");
+            resource = new ClassPathResource("/no_photo.png");
         }
-        etag = md5DigestAsHex(byteArrayResource.getInputStream());
+        etag = md5DigestAsHex(resource.getInputStream());
         return ResponseEntity
                 .ok()
                 .cacheControl(cacheControl)
                 .eTag(etag)
                 .contentType(MediaType.IMAGE_JPEG)
-                .body(byteArrayResource);
+                .body(resource);
 
     }
 }

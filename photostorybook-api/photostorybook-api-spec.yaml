@@ -70,12 +70,12 @@ paths:
   /photostories/view/{storyId}:
     get:
       tags:
-        - photos
+        - photostories
       security:
         - oauth2photostorybook:
             - photostory.read
-      summary: Get all photo details of photostory identified by storyId
-      operationId: downloadPhotoDetailsList
+      summary: Get photostory identified by storyId
+      operationId: getPhotostory
       parameters:
         - in: path
           name: storyId
@@ -88,17 +88,16 @@ paths:
             example: "123e4567-e89b-12d3-a456-426614174000"
       responses:
         200:
-          description: Successfully retrieved photos of photostory
+          description: Successfully retrieved photostory
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PhotoDetailsListResponse'
+                $ref: '#/components/schemas/PhotostoryResponse'
 
         204:
           description: Photostory contains no photos.
         401:
           $ref: '#/components/responses/UnauthorizedError'
-
 
   /photostories/delete/{storyId}:
     post:
@@ -167,6 +166,39 @@ paths:
                 $ref: '#/components/schemas/PhotostoryResponse'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+
+  /photostories/view/{storyId}/photos:
+    get:
+      tags:
+        - photostories
+      security:
+        - oauth2photostorybook:
+            - photostory.read
+      summary: Get all photo details of photostory identified by storyId
+      operationId: getPhotostoryWithPhotos
+      parameters:
+        - in: path
+          name: storyId
+          description: photostory id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        200:
+          description: Successfully retrieved photos of photostory
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotostoryWithPhotosResponse'
+
+        204:
+          description: Photostory contains no photos.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
 
   /photostories/edit/{storyId}/photos:
     post:
@@ -283,6 +315,42 @@ paths:
         401:
           $ref: '#/components/responses/UnauthorizedError'
 
+  /photostories/edit/{storyId}/photos/{photoId}:
+    delete:
+      tags:
+        - photos
+      security:
+        - oauth2photostorybook:
+            - photostory.delete
+      summary: Delete selected photos with photoId of photostory identified by storyId
+      operationId: deletePhoto
+      parameters:
+        - in: path
+          name: storyId
+          description: photostory id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+        - in: path
+          name: photoId
+          description: photo id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F\-]{36}$'
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        202:
+          description: Photo successful deleted.
+        204:
+          description: Photo not found.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
 components:
   schemas:
     ApiError:
@@ -331,9 +399,22 @@ components:
           example: An awesome title for a photo.
       required:
         - uuid
-    PhotoDetailsListResponse:
+    PhotostoryWithPhotosResponse:
       type: object
       properties:
+        uuid:
+          type: string
+          format: uuid
+          pattern: '^[0-9a-fA-F\-]{36}$'
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        storyTitle:
+          type: string
+          example: An awesome title for a new photostory.
+        titlePhotoId:
+          type: string
+          format: uuid
+          pattern: '^[0-9a-fA-F\-]{36}$'
+          example: "123e4567-e89b-12d3-a456-426614174000"
         photos:
           type: array
           items:

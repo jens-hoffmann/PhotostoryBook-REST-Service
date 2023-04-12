@@ -102,4 +102,17 @@ public class PhotoService {
 
         return  responseList;
     }
+
+    public void deletePhoto(UUID storyId, UUID photoId, String userId) {
+        log.info("PhotoService: delete image " + photoId.toString() + " for user " + userId);
+        Optional<PSImageEntity> mayBeImageEntity = imageRepository.findByBusinesskeyAndUserId(photoId.toString(), userId).stream().findFirst();
+        if (mayBeImageEntity.isEmpty())
+            throw new ApiRequestException("PhotoService: deletePhoto: No photo with id "+ photoId.toString() + " found !");
+        PSImageEntity psImageEntity = mayBeImageEntity.get();
+        PhotostoryEntity photostory = psImageEntity.getPhotostory();
+        imageRepository.delete(psImageEntity);
+        fs.delete(psImageEntity.getImageUrl() );
+        fs.delete( psImageEntity.getImageUrl().replace(".jpg", "-thumb.jpg") );
+
+    }
 }

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.Part;
 import javax.validation.Valid;
@@ -50,7 +51,7 @@ public class PhotostoryController {
     }
 
     @GetMapping
-    public String getPhotostories(Model model) {
+    public String getPhotostories() {
         log.info("PhotostoryController: getPhotostories");
 
         PhotostoryListResponse responseList = photostoryRestService.getPhotostories();
@@ -101,14 +102,59 @@ public class PhotostoryController {
 
     @PostMapping("/delete/{storyid}")
     public String deletePhotostory(@PathVariable String storyid) {
-        log.info("PhotostoryController: deletePhotostory with id " + storyid);
+        log.info("PhotostoryController: POST deletePhotostory with storyid " + storyid);
         photostoryRestService.deletePhotostory(UUID.fromString(storyid));
         return "redirect:/photostories";
     }
 
+
+    @GetMapping("/edit/{storyid}/addphoto")
+    public ModelAndView addPhotoToStoryForm(Model model, @PathVariable String storyid) {
+        log.info("PhotostoryController: GET addPhotoToStoryForm with storyid " + storyid);
+        PhotostoryResponse photostoryResponse = photostoryRestService.getPhotostory(UUID.fromString(storyid));
+
+        ModelAndView modelAndView = new ModelAndView("addphotoform");
+
+        modelAndView.addObject("storyId", photostoryResponse.getUuid());
+        modelAndView.addObject("storyTitle", photostoryResponse.getStoryTitle());
+
+        return modelAndView;
+    }
+
+    @PostMapping(path = "/edit/{storyid}/addphoto", consumes = {"multipart/form-data"})
+    public String addPhotoToStory(@PathVariable String storyid, @Valid @RequestParam("imageTitle") String imageTitle, @Valid @RequestParam("imageFile") Part imageFile) throws IOException {
+        log.info("PhotostoryController: POST addPhotoToStoryForm with storyid " + storyid);
+        PhotostoryResponse photostoryResponse = photostoryRestService.getPhotostory(UUID.fromString(storyid));
+        String imageContentType = imageFile.getContentType();
+
+        // process image
+        Path imagePath;
+        if (imageContentType.equals(MediaType.IMAGE_JPEG_VALUE)) {
+            imagePath = Files.createTempFile("photo_", ".jpg");
+        } else if (imageContentType.equals(MediaType.IMAGE_PNG_VALUE)) {
+            imagePath = Files.createTempFile("photo_", ".png");
+        } else {
+            return "redirect:/photostories";
+        }
+        Files.copy(
+                imageFile.getInputStream(),
+                imagePath,
+                StandardCopyOption.REPLACE_EXISTING);
+        log.info(" CreatePhotostoryController: temp file " + imagePath.toString());
+        PhotoDetailsResponse detailsResponse = photoRestService.uploadPhoto(photostoryResponse.getUuid(), imageFile.getInputStream().readAllBytes());
+        UUID photoUuid = detailsResponse.getUuid();
+
+        log.info("CreatePhotostoryController: uploaded photo "+ photoUuid.toString());
+
+        return "redirect:/photostories/view/" + storyid;
+    }
+
+
     @GetMapping("/view/{storyid}")
     public String viewPhotostory(Model model, @PathVariable String storyid) {
         log.info("PhotostoryController: viewPhotostory with id " + storyid);
+        PhotostoryWithPhotosResponse photostoryWithPhotos = photostoryRestService.getPhotostoryWithPhotos(UUID.fromString(storyid));
+        model.addAttribute("photostoryWithPhotos", photostoryWithPhotos);
 
         return "photostory_details";
     }
@@ -163,5 +209,12 @@ public class PhotostoryController {
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(resource);
 
+    }
+
+    @PostMapping("/edit/{storyid}/deletephoto/{photoid}")
+    public String deletePhoto(@PathVariable String storyid, @PathVariable String photoid) {
+        log.info("PhotostoryController: DELETE deletePhoto with storyid " + storyid + " and photoid " + photoid);
+        photoRestService.deletePhoto(UUID.fromString(storyid), UUID.fromString(photoid));
+        return "redirect:/photostories/view/" + storyid;
     }
 }

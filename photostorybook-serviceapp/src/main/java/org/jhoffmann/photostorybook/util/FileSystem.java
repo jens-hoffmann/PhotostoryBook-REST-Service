@@ -49,6 +49,15 @@ public class FileSystem {
         }
     }
 
+    public void delete( String filename ) {
+        try {
+            Files.delete( resolve( filename ) );
+        }
+        catch ( IOException e ) {
+            throw new UncheckedIOException( e );
+        }
+    }
+
     private Path resolve( String filename ) {
         Path path = root.resolve( filename ).toAbsolutePath().normalize();
         if ( !path.startsWith( root ) )

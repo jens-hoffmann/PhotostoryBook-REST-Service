@@ -62,7 +62,7 @@ public class PhotoService {
         return imageName;
     }
 
-    @Cacheable( cacheNames = "photostory-service.filesystem.photo", key = "#photoId", unless = "#result == null")
+    @Cacheable( cacheNames = "photostory-service.filesystem.photo", key = "#photoId.toString().concat('-').concat(#loadThumbnail ? 'thumb' : 'orig')", unless = "#result == null")
     public Optional<byte[]> download( UUID storyId, UUID photoId, String userId, boolean loadThumbnail) {
         log.info("PhotoService: download image " + photoId.toString() + " for user " + userId);
         Optional<PSImageEntity> mayBeImageEntity = imageRepository.findByBusinesskeyAndUserId(photoId.toString(), userId).stream().findFirst();
@@ -105,14 +105,21 @@ public class PhotoService {
 
     public void deletePhoto(UUID storyId, UUID photoId, String userId) {
         log.info("PhotoService: delete image " + photoId.toString() + " for user " + userId);
-        Optional<PSImageEntity> mayBeImageEntity = imageRepository.findByBusinesskeyAndUserId(photoId.toString(), userId).stream().findFirst();
-        if (mayBeImageEntity.isEmpty())
-            throw new ApiRequestException("PhotoService: deletePhoto: No photo with id "+ photoId.toString() + " found !");
-        PSImageEntity psImageEntity = mayBeImageEntity.get();
-        PhotostoryEntity photostory = psImageEntity.getPhotostory();
-        imageRepository.delete(psImageEntity);
+        Optional<PhotostoryEntity> photostory = photostoryRepository.findByBusinesskeyAndUserId(storyId.toString(), userId).stream().findFirst();
+        if (photostory.isEmpty())
+            throw new ApiRequestException("PhotoService: deletePhoto: No photostory with id "+ storyId.toString());
+        PhotostoryEntity photostoryEntity = photostory.get();
+        List<PSImageEntity> photos = photostoryEntity.getPhotos();
+        Optional<PSImageEntity> maybeImage = photos.stream().filter(psImage -> psImage.getBusinesskey().equals(photoId.toString())).findFirst();
+        if (maybeImage.isEmpty()) {
+            throw new ApiRequestException("PhotoService: deletePhoto: No photo with id "+ photoId.toString());
+        }
+        PSImageEntity psImageEntity = maybeImage.get();
+        log.info("PhotoService: delete file " + psImageEntity.getImageUrl());
         fs.delete(psImageEntity.getImageUrl() );
         fs.delete( psImageEntity.getImageUrl().replace(".jpg", "-thumb.jpg") );
+        photos.removeIf(psImage -> psImage.getBusinesskey().equals(photoId.toString()));
+        photostoryRepository.saveAndFlush(photostoryEntity);
 
     }
 }

@@ -1,5 +1,6 @@
 package org.jhoffmann.photostorybookwebclient.util;
 
+import feign.Logger;
 import feign.codec.Encoder;
 import feign.form.spring.SpringFormEncoder;
 import org.springframework.beans.BeansException;
@@ -45,5 +46,10 @@ public class OAuthFeignConfig {
     @Bean
     public Encoder feignFormEncoder () {
         return new SpringFormEncoder(new SpringEncoder(messageConverters));
+    }
+
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
     }
 }

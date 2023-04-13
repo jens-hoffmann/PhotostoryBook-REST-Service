@@ -36,7 +36,8 @@ public class PhotostoryEntity {
     @OneToMany(
             mappedBy = "photostory",
             fetch = FetchType.EAGER,
-            cascade = CascadeType.ALL)
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<PSImageEntity> photos;
 
     private PhotostoryEntity() {
